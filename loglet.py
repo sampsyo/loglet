@@ -9,6 +9,9 @@ from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
 import urlparse
 
+
+# Constants.
+
 DB_NAME = 'loglet.db'
 MIN_LEVEL = 0
 MAX_LEVEL = 100
@@ -17,7 +20,11 @@ LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
 
+
+# Utilities.
+
 def random_string(length=16, chars=(string.ascii_letters + string.digits)):
+    """Generate a string of random characters."""
     return ''.join(random.choice(chars) for i in range(length))
 
 def abs_url(*args, **kwargs):
@@ -25,8 +32,11 @@ def abs_url(*args, **kwargs):
     return urlparse.urljoin(request.url_root, flask.url_for(*args, **kwargs))
 
 
+# Application setup.
+
 app = flask.Flask(__name__)
 
+# Connection to SQLite database.
 @app.before_request
 def before_request():
     g.db = sqlite3.connect(DB_NAME)
@@ -36,10 +46,16 @@ def teardown_request(req):
 
 @app.template_filter('timeformat')
 def timeformat(ts, fmt='%Y-%m-%d %H:%M:%S'):
+    """Format a UNIX timestamp as a string using a strftime format
+    template.
+    """
     return datetime.fromtimestamp(ts).strftime(fmt)
 
 @app.template_filter('levelname')
 def levelname(level):
+    """Returns a short string summarizing and integer level. Used for
+    CSS classes to style elements according to log severity level.
+    """
     if level >= LEVEL_ERROR:
         return 'error'
     elif level >= LEVEL_WARN:
@@ -47,12 +63,16 @@ def levelname(level):
     else:
         return 'debug'
 
-app.jinja_env.globals['min_level'] = MIN_LEVEL
-app.jinja_env.globals['max_level'] = MAX_LEVEL
-app.jinja_env.globals['max_msg_length'] = MAX_MSG_LENGTH
-app.jinja_env.globals['max_messages'] = MAX_MESSAGES
+# Expose constants to templates.
+app.jinja_env.globals.update({
+    'min_level': MIN_LEVEL,
+    'max_level': MAX_LEVEL,
+    'max_msg_length': MAX_MSG_LENGTH,
+    'max_messages': MAX_MESSAGES,
+})
 
 def init_db():
+    """Initialize the database schema if needed."""
     with closing(sqlite3.connect(DB_NAME)) as db:
         db.executescript("""
             CREATE TABLE IF NOT EXISTS logs (
@@ -73,12 +93,14 @@ def init_db():
         """)
 
 
+# Query helpers.
+
 def _id_for_log(longid):
     c = g.db.execute("SELECT id FROM logs WHERE longid = ?", (longid,))
     with closing(c):
         row = c.fetchone()
         if not row:
-            RAISE404
+            flask.abort(404)
         return row[0]
 
 def _messages_for_log(longid):
@@ -97,12 +119,16 @@ def _messages_for_log(longid):
     return messages
 
 
+# Views.
+
 @app.route("/")
 def home():
+    """Front page splash."""
     return flask.render_template('index.html')
 
 @app.route("/new", methods=["POST"])
 def newlog():
+    """Make a new log and redirect to its URL."""
     longid = random_string()
     with g.db:
         g.db.execute("INSERT INTO logs (longid, name, twitternames) "
@@ -112,6 +138,7 @@ def newlog():
 
 @app.route("/<longid>", methods=["POST", "GET"])
 def log(longid):
+    """View or add to a log."""
     if request.method == 'POST':
         # Add to log.
         message = request.form['message']
@@ -151,6 +178,7 @@ def log(longid):
 
 @app.route("/<longid>/txt")
 def logtxt(longid):
+    """Plain-text log representation."""
     outlines = []
     for message in _messages_for_log(longid):
         outlines.append('%i %i %s' %
@@ -160,10 +188,12 @@ def logtxt(longid):
 
 @app.route("/<longid>/json")
 def logjson(longid):
+    """JSON log representation."""
     return flask.jsonify(log=longid, messages=_messages_for_log(longid))
 
 @app.route("/<longid>/feed")
 def logfeed(longid):
+    """Atom feed for a log."""
     logurl = abs_url('log', longid=longid)
     feed = AtomFeed('Loglet Log %s' % longid,
                     feed_url=request.url,
@@ -179,6 +209,8 @@ def logfeed(longid):
                  author='Loglet')
     return feed.get_response()
 
+
+# Debug server.
 
 if __name__ == '__main__':
     init_db()
