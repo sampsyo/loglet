@@ -5,6 +5,7 @@ from contextlib import closing
 import string
 import random
 import time
+from datetime import datetime
 
 DB_NAME = 'loglet.db'
 
@@ -20,6 +21,10 @@ def before_request():
 @app.teardown_request
 def teardown_request(req):
     g.db.close()
+
+@app.template_filter('timeformat')
+def timeformat(ts, fmt='%d-%m-%Y %H:%M:%S'):
+    return datetime.fromtimestamp(ts).strftime(fmt)
 
 def init_db():
     with closing(sqlite3.connect(DB_NAME)) as db:

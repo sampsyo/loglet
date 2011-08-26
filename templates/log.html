@@ -14,7 +14,7 @@
         </tr></thead>
         {% for message in messages -%}
         <tr>
-            <td class="time">{{ message.time }}</td>
+            <td class="time">{{ message.time | timeformat }}</td>
             <td class="level">{{ message.level }}</td>
             <td class="message">{{ message.message }}</td>
         </tr>
