@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Log</title>
+    </head>
+    <body>
+        <ul>
+            {% for message in messages -%}
+                <li>
+                    <span class="time">{{ message.time }}</span>
+                    <span class="message">{{ message.message }}</span>
+                </li>
+            {%- endfor %}
+        </ul>
+        <p>
+            View as <a href="/{{ longid }}/txt">plain text</a> or
+            <a href="/{{ longid }}/json">JSON</a>.
+        </p>
+    </body>
+</html>
