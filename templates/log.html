@@ -6,10 +6,10 @@
     <body>
         <ul>
             {% for message in messages -%}
-                <li>
-                    <span class="time">{{ message.time }}</span>
-                    <span class="message">{{ message.message }}</span>
-                </li>
+            <li>
+                <span class="time">{{ message.time }}</span>
+                <span class="message">{{ message.message }}</span>
+            </li>
             {%- endfor %}
         </ul>
         <p>
