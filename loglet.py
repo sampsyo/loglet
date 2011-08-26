@@ -137,6 +137,7 @@ def newlog():
         g.db.execute("INSERT INTO logs (longid, name, twitternames) "
                     "VALUES (?, ?, ?)",
                     (longid, 'new log', ''))
+    app.logger.debug('created: %s'% longid)
     return flask.redirect('/' + longid)
 
 @app.route("/<longid>", methods=["POST", "GET"])
