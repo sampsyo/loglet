@@ -28,10 +28,6 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
     """Generate a string of random characters."""
     return ''.join(random.choice(chars) for i in range(length))
 
-def abs_url(*args, **kwargs):
-    """Like url_for, but gives an absolute URL."""
-    return urlparse.urljoin(request.url_root, flask.url_for(*args, **kwargs))
-
 
 # Application setup.
 
@@ -202,7 +198,7 @@ def logjson(longid):
 @app.route("/<longid>/feed")
 def logfeed(longid):
     """Atom feed for a log."""
-    logurl = abs_url('log', longid=longid)
+    logurl = flask.url_for('log', longid=longid, _external=True)
     feed = AtomFeed('Loglet Log %s' % longid,
                     feed_url=request.url,
                     url=logurl)
