@@ -65,6 +65,9 @@ log.error('something horrible has happened')</pre>
                 <a href="http://www.sqlite.org/">SQLite</a>,
                 and
                 <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.
+                {% if 'radbox.org' in request.url_root -%}
+                Hosted by <a href="http://dreamhost.com/">Dreamhost</a>.
+                {%- endif %}
             </p>
             <h4>Coming Soon</h4>
             <p>
