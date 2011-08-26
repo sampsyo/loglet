@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {% block head -%}
         <title>{% block title %}Loglet{% endblock %}</title>
         <link rel="stylesheet"
               href="{{ url_for('static', filename='bootstrap.css') }}">
         <link rel="stylesheet"
               href="{{ url_for('static', filename='loglet.css') }}">
+        {%- endblock %}
     </head>
     <body>
         <div class="container">

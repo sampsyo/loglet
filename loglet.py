@@ -6,6 +6,8 @@ import string
 import random
 import time
 from datetime import datetime
+from werkzeug.contrib.atom import AtomFeed
+import urlparse
 
 DB_NAME = 'loglet.db'
 MIN_LEVEL = 0
@@ -16,6 +18,10 @@ LEVEL_ERROR = 40
 
 def random_string(length=16, chars=(string.ascii_letters + string.digits)):
     return ''.join(random.choice(chars) for i in range(length))
+
+def abs_url(*args, **kwargs):
+    """Like url_for, but gives an absolute URL."""
+    return urlparse.urljoin(request.url_root, flask.url_for(*args, **kwargs))
 
 
 app = flask.Flask(__name__)
@@ -142,6 +148,23 @@ def logtxt(longid):
 @app.route("/<longid>/json")
 def logjson(longid):
     return flask.jsonify(log=longid, messages=_messages_for_log(longid))
+
+@app.route("/<longid>/feed")
+def logfeed(longid):
+    logurl = abs_url('log', longid=longid)
+    feed = AtomFeed('Loglet Log %s' % longid,
+                    feed_url=request.url,
+                    url=logurl)
+    for message in _messages_for_log(longid):
+        pubtime = datetime.fromtimestamp(message['time'])
+        feed.add('%i: %s' % (message['level'], message['message'][:128]),
+                 '<pre>%s</pre>' % message['message'],
+                 content_type='html',
+                 url=logurl,
+                 published=pubtime,
+                 updated=pubtime,
+                 author='Loglet')
+    return feed.get_response()
 
 
 if __name__ == '__main__':
