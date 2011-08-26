@@ -3,8 +3,10 @@
 {% block content %}
     <h1>A Log</h1>
     <p>
-        View as <a href="/{{ longid }}/txt">plain text</a> or
-        <a href="/{{ longid }}/json">JSON</a>.
+        View as
+        <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
+        or
+        <a href="{{ url_for('logjson', longid=longid) }}">JSON</a>.
     </p>
     <table class="common-table">
         <thead><tr>
@@ -25,4 +27,5 @@
         with a <code>message</code> parameter and an optional <code>level</code>
         parameter.
     </p>
+    <p><code>curl -d message=hello {{ request.base_url }}</code></p>
 {% endblock %}
