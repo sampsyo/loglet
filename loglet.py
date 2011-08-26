@@ -131,9 +131,15 @@ def log(longid):
 
         logid = _id_for_log(longid)
         with g.db:
-            g.db.execute("INSERT INTO messages (logid, message, time, level)"
-                         " VALUES (?, ?, ?, ?)",
+            # Add new message.
+            g.db.execute("INSERT INTO messages (logid, message, time, level) "
+                         "VALUES (?, ?, ?, ?)",
                          (logid, message, int(time.time()), level))
+            # Drop old messages.
+            g.db.execute("DELETE FROM messages WHERE id IN (SELECT id FROM "
+                         "messages WHERE logid = ? ORDER BY time DESC "
+                         "LIMIT -1 OFFSET ?)",
+                         (logid, MAX_MESSAGES))
         
         return flask.jsonify(success=1)
 
