@@ -7,7 +7,6 @@ import random
 import time
 from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
-import urlparse
 
 
 # Constants.
@@ -19,7 +18,6 @@ MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
-DEBUG = False
 
 
 # Utilities.
@@ -32,6 +30,7 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
+app.debug = False
 
 # Connection to SQLite database.
 @app.before_request
@@ -218,4 +217,4 @@ def logfeed(longid):
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=DEBUG)
+    app.run()
