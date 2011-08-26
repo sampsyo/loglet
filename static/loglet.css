@@ -12,3 +12,9 @@ td.level {
 .level.warning {
     background: #FCCD43;
 }
+
+.emptylog {
+    font-weight: bold;
+    margin-top: -0.5em;
+    margin-bottom: 1.5em;
+}

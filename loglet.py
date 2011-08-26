@@ -15,6 +15,7 @@ MAX_LEVEL = 100
 MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
+MAX_MESSAGES = 512
 
 def random_string(length=16, chars=(string.ascii_letters + string.digits)):
     return ''.join(random.choice(chars) for i in range(length))
@@ -45,6 +46,11 @@ def levelname(level):
         return 'warning'
     else:
         return 'debug'
+
+app.jinja_env.globals['min_level'] = MIN_LEVEL
+app.jinja_env.globals['max_level'] = MAX_LEVEL
+app.jinja_env.globals['max_msg_length'] = MAX_MSG_LENGTH
+app.jinja_env.globals['max_messages'] = MAX_MESSAGES
 
 def init_db():
     with closing(sqlite3.connect(DB_NAME)) as db:

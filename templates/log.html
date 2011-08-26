@@ -32,6 +32,11 @@
         </tr>
         {%- endfor %}
     </table>
+    {% if not messages -%}
+    <p class="emptylog">
+        No log messages yet.
+    </p>
+    {%- endif %}
     <p>
         You can add to this log by <code>POST</code>ing to this URL
         with a <code>message</code> parameter and an optional <code>level</code>
