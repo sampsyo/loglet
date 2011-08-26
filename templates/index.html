@@ -32,12 +32,20 @@
                 should be an integer) indicating the severity of the message.
                 Try it out with <a href="http://curl.haxx.se/">cURL</a>:
             </p>
+            <pre>curl -d message=hello {{ request.url_root }}LOGID</pre>
             <p>
-                <code>curl -d message=hello {{ request.url_root }}YOURID</code>
+                There&rsquo;s also
+                <a href="https://github.com/sampsyo/loglet/blob/master/extra/loglet.py">a
+                    handler available</a>
+                for the
+                <a href="http://docs.python.org/library/logging.html">Python
+                    logging module</a>:
             </p>
-            <p>
-                There&rsquo;s also a Python module... XXX
-            </p>
+            <pre>import logging
+import loglet
+log = logging.getLogger('mylog')
+log.addHandler(loglet.LogletHandler('2LNbYgNEAaezJduj'))
+log.error('something horrible has happened')</pre>
 
             <h3>3. Read Your Log</h3>
             <p>
