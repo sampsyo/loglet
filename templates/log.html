@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Loglet: A Log{% endblock %}
+{% block title %}Loglet: {{ longid }}{% endblock %}
 {% block head %}
     {{ super() }}
     <link rel="alternate"
@@ -7,7 +7,7 @@
           href="{{ url_for('logfeed', longid=longid) }}">
 {% endblock %}
 {% block content %}
-    <h1>A Log</h1>
+    <h1>A Loglet Log</h1>
     <p>
         View as
         <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>

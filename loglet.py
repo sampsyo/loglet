@@ -153,7 +153,8 @@ def log(longid):
 def logtxt(longid):
     outlines = []
     for message in _messages_for_log(longid):
-        outlines.append('%i %s' % (message['time'], message['message']))
+        outlines.append('%i %i %s' %
+                        (message['time'], message['level'], message['message']))
     text = "\n".join(outlines)
     return flask.Response(text, content_type="text/plain")
 
