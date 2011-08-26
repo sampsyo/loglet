@@ -4,3 +4,11 @@ td.time {
 td.level {
     width: 4em;
 }
+
+.level.error {
+    background: #D11010;
+    color: white;
+}
+.level.warning {
+    background: #FCCD43;
+}

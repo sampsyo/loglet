@@ -8,6 +8,11 @@ import time
 from datetime import datetime
 
 DB_NAME = 'loglet.db'
+MIN_LEVEL = 0
+MAX_LEVEL = 100
+MAX_MSG_LENGTH = 4096
+LEVEL_WARN = 30
+LEVEL_ERROR = 40
 
 def random_string(length=16, chars=(string.ascii_letters + string.digits)):
     return ''.join(random.choice(chars) for i in range(length))
@@ -23,8 +28,17 @@ def teardown_request(req):
     g.db.close()
 
 @app.template_filter('timeformat')
-def timeformat(ts, fmt='%d-%m-%Y %H:%M:%S'):
+def timeformat(ts, fmt='%Y-%m-%d %H:%M:%S'):
     return datetime.fromtimestamp(ts).strftime(fmt)
+
+@app.template_filter('levelname')
+def levelname(level):
+    if level >= LEVEL_ERROR:
+        return 'error'
+    elif level >= LEVEL_WARN:
+        return 'warning'
+    else:
+        return 'debug'
 
 def init_db():
     with closing(sqlite3.connect(DB_NAME)) as db:
@@ -57,15 +71,16 @@ def _id_for_log(longid):
 
 def _messages_for_log(longid):
     logid = _id_for_log(longid)
-    c = g.db.execute("SELECT message, time FROM messages WHERE logid = ? "
-                     "ORDER BY time DESC",
+    c = g.db.execute("SELECT message, time, level FROM messages "
+                     "WHERE logid = ? ORDER BY time DESC",
                      (logid,))
     messages = []
     with closing(c):
         for row in c:
             messages.append({
                 'message': row[0],
-                'time': row[1]
+                'time': row[1],
+                'level': row[2]
             })
     return messages
 
@@ -88,10 +103,19 @@ def log(longid):
     if request.method == 'POST':
         # Add to log.
         message = request.form['message']
+
         try:
             level = request.form['level']
         except KeyError:
-            level = 0
+            level = MIN_LEVEL
+        try:
+            level = int(level)
+        except ValueError:
+            level = MIN_LEVEL
+        if level < MIN_LEVEL:
+            level = MIN_LEVEL
+        elif level > MAX_LEVEL:
+            level = MAX_LEVEL
 
         logid = _id_for_log(longid)
         with g.db:

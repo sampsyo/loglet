@@ -17,7 +17,9 @@
         {% for message in messages -%}
         <tr>
             <td class="time">{{ message.time | timeformat }}</td>
-            <td class="level">{{ message.level }}</td>
+            <td class="level {{ message.level | levelname }}">
+                {{ message.level | default('', True) }}
+            </td>
             <td class="message">{{ message.message }}</td>
         </tr>
         {%- endfor %}
