@@ -20,7 +20,7 @@
                 You&rsquo;ll get a private, hard-to-guess URL like
                 <code>{{ request.url_root }}2LNbYgNEAaezJduj</code>.
             </p>
-            <form action="/new" method="POST">
+            <form action="{{ url_for('newlog') }}" method="POST">
                 <input type="submit" value="New Log" class="btn primary">
             </form>
 

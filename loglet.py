@@ -19,6 +19,7 @@ MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
+DEBUG = False
 
 
 # Utilities.
@@ -70,6 +71,13 @@ app.jinja_env.globals.update({
     'max_msg_length': MAX_MSG_LENGTH,
     'max_messages': MAX_MESSAGES,
 })
+
+@app.errorhandler(404)
+def notfound(error):
+    return flask.render_template('notfound.html'), 404
+@app.errorhandler(500)
+def servererror(error):
+    return flask.render_template('error.html'), 500
 
 def init_db():
     """Initialize the database schema if needed."""
@@ -214,4 +222,4 @@ def logfeed(longid):
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(debug=DEBUG)
