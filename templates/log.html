@@ -5,53 +5,71 @@
     <link rel="alternate"
           type="application/atom+xml"
           href="{{ url_for('logfeed', longid=longid) }}">
+    <script type="text/javascript">
+        window.onload = function() {
+            var tzsel = document.getElementById('tzoffset');
+            console.log(tzsel);
+            tzsel.onchange = function(e) {
+                tzsel.parentNode.submit();
+            };
+        }
+    </script>
 {% endblock %}
 {% block content %}
     <h1>A Loglet Log</h1>
-    <p>
-        View as
-        <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
-        or
-        <a href="{{ url_for('logjson', longid=longid) }}">JSON</a>
-        or subscribe to
-        <a href="{{ url_for('logfeed', longid=longid) }}">an Atom feed</a>.
-    </p>
-    <table class="common-table">
-        <thead><tr>
-            <td>Time</td>
-            <td>Level</td>
-            <td>Message</td>
-        </tr></thead>
-        {% for message in messages -%}
-        <tr>
-            <td class="time">{{ message.time | timeformat(tzoffset) }}</td>
-            <td class="level {{ message.level | levelname }}">
-                {{ message.level | default('', True) }}
-            </td>
-            <td class="message">{{ message.message }}</td>
-        </tr>
-        {%- endfor %}
-    </table>
-    {% if not messages -%}
-    <p class="emptylog">
-        No log messages yet.
-    </p>
-    {%- endif %}
-    <form action="" method="GET">
-        <select name="tzoffset">
-        {% for offset, name in time_zones -%}
-            <option value="{{ offset }}"
-            {%- if tzoffset == offset %}selected{% endif %}>
-                {{ offset | tzrep }} {{ name }}
-            </option>
-        {%- endfor %}
-        </select>
-        <input type="submit" value="Set Time Zone">
-    </form>
-    <p>
-        You can add to this log by <code>POST</code>ing to this URL
-        with a <code>message</code> parameter and an optional <code>level</code>
-        parameter.
-    </p>
-    <p><code>curl -d message=hello {{ request.base_url }}</code></p>
+    <div class="row">
+        <div class="span12 columns">
+            <table class="common-table">
+                <thead><tr>
+                    <td>Time</td>
+                    <td>Level</td>
+                    <td>Message</td>
+                </tr></thead>
+                {% for message in messages -%}
+                <tr>
+                    <td class="time">
+                        {{ message.time | timeformat(tzoffset) }}
+                    </td>
+                    <td class="level {{ message.level | levelname }}">
+                        {{ message.level | default('', True) }}
+                    </td>
+                    <td class="message">{{ message.message }}</td>
+                </tr>
+                {%- endfor %}
+            </table>
+            {% if not messages -%}
+            <p class="emptylog">
+                No log messages yet.
+            </p>
+            {%- endif %}
+            <p>
+                You can add to this log by <code>POST</code>ing to this URL
+                with a <code>message</code> parameter and an optional
+                <code>level</code> parameter.
+            </p>
+            <p><code>curl -d message=hello {{ request.base_url }}</code></p>
+        </div>
+        <div class="span4 columns">
+            <p>
+                View as
+                <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
+                or
+                <a href="{{ url_for('logjson', longid=longid) }}">JSON</a>
+                or subscribe to
+                <a href="{{ url_for('logfeed', longid=longid) }}">an
+                    Atom feed</a>.
+            </p>
+            <h5>Time Zone</h5>
+            <form action="" method="GET">
+                <select name="tzoffset" id="tzoffset">
+                {% for offset, name in time_zones -%}
+                    <option value="{{ offset }}"
+                    {%- if tzoffset == offset %}selected{% endif %}>
+                        {{ offset | tzrep }} {{ name }}
+                    </option>
+                {%- endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
 {% endblock %}
