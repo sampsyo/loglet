@@ -63,7 +63,7 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
-app.debug = False
+app.debug = True
 
 # Connection to SQLite database.
 @app.before_request
@@ -260,7 +260,7 @@ def logfeed(longid):
                     feed_url=request.url,
                     url=logurl)
     for message in _messages_for_log(longid):
-        pubtime = datetime.fromtimestamp(message['time'])
+        pubtime = datetime.datetime.utcfromtimestamp(message['time'])
         feed.add('%i: %s' % (message['level'], message['message'][:128]),
                  '<pre>%s</pre>' % message['message'],
                  content_type='html',
