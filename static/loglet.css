@@ -14,7 +14,7 @@ td.level {
 }
 
 .message {
-    white-space: pre;
+    white-space: pre-wrap;
     font-family: Monaco, Andale Mono, Courier New, monospace;
     font-size: 12px;
 }
