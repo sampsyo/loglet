@@ -24,7 +24,7 @@
         </tr></thead>
         {% for message in messages -%}
         <tr>
-            <td class="time">{{ message.time | timeformat }}</td>
+            <td class="time">{{ message.time | timeformat(tzoffset) }}</td>
             <td class="level {{ message.level | levelname }}">
                 {{ message.level | default('', True) }}
             </td>

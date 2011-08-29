@@ -5,7 +5,7 @@ from contextlib import closing
 import string
 import random
 import time
-from datetime import datetime
+import datetime
 from werkzeug.contrib.atom import AtomFeed
 
 
@@ -30,7 +30,7 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
-app.debug = False
+app.debug = True
 
 # Connection to SQLite database.
 @app.before_request
@@ -41,11 +41,13 @@ def teardown_request(req):
     g.db.close()
 
 @app.template_filter('timeformat')
-def timeformat(ts, fmt='%Y-%m-%d %H:%M:%S'):
+def timeformat(ts, tzoffset=0, fmt='%Y-%m-%d %H:%M:%S'):
     """Format a UNIX timestamp as a string using a strftime format
-    template.
+    template. tz is a time zone offset in hours.
     """
-    return datetime.fromtimestamp(ts).strftime(fmt)
+    dt = datetime.datetime.utcfromtimestamp(ts)
+    dt += datetime.timedelta(hours=tzoffset)
+    return dt.strftime(fmt)
 
 @app.template_filter('levelname')
 def levelname(level):
@@ -176,9 +178,15 @@ def log(longid):
 
     else:
         # Show log.
+        try:
+            tzoffset = float(request.args['tzoffset'])
+        except (KeyError, ValueError):
+            tzoffset = 0.0
+
         return flask.render_template('log.html',
-                                    messages=_messages_for_log(longid),
-                                    longid=longid)
+                                     messages=_messages_for_log(longid),
+                                     longid=longid,
+                                     tzoffset=tzoffset)
 
 @app.route("/<longid>/txt")
 def logtxt(longid):
