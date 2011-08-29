@@ -28,3 +28,7 @@ td.level {
 h1 {
     margin-top: 0.5em;
 }
+
+select {
+    font-size: 1em !important;
+}

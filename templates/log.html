@@ -37,6 +37,17 @@
         No log messages yet.
     </p>
     {%- endif %}
+    <form action="" method="GET">
+        <select name="tzoffset">
+        {% for offset, name in time_zones -%}
+            <option value="{{ offset }}"
+            {%- if tzoffset == offset %}selected{% endif %}>
+                {{ offset | tzrep }} {{ name }}
+            </option>
+        {%- endfor %}
+        </select>
+        <input type="submit" value="Set Time Zone">
+    </form>
     <p>
         You can add to this log by <code>POST</code>ing to this URL
         with a <code>message</code> parameter and an optional <code>level</code>

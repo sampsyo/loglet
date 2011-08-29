@@ -18,6 +18,39 @@ MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
+TIME_ZONES = [
+    (-12.0, "Eniwetok, Kwajalein"),
+    (-11.0, "Midway Island, Samoa"),
+    (-10.0, "Hawaii"),
+    (-9.0, "AKST"),
+    (-8.0, "PST, AKDT"),
+    (-7.0, "MST, PDT"),
+    (-6.0, "CST, MDT, Mexico City"),
+    (-5.0, "EST, CDT, Bogota, Lima"),
+    (-4.0, "EDT, Atlantic Time, Caracas, La Paz"),
+    (-3.5, "Newfoundland"),
+    (-3.0, "Brazil, Buenos Aires, Georgetown"),
+    (-2.0, "Mid-Atlantic"),
+    (-1.0, "Azores, Cape Verde Islands"),
+    (+0.0, "Western Europe Time, London, Lisbon, Casablanca"),
+    (+1.0, "Brussels, Copenhagen, Madrid, Paris"),
+    (+2.0, "Kaliningrad, South Africa"),
+    (+3.0, "Baghdad, Riyadh, Moscow, St. Petersburg"),
+    (+3.5, "Tehran"),
+    (+4.0, "Abu Dhabi, Muscat, Baku, Tbilisi"),
+    (+4.5, "Kabul"),
+    (+5.0, "Ekaterinburg, Islamabad, Karachi, Tashkent"),
+    (+5.5, "Bombay, Calcutta, Madras, New Delhi"),
+    (+5.75, "Kathmandu"),
+    (+6.0, "Almaty, Dhaka, Colombo"),
+    (+7.0, "Bangkok, Hanoi, Jakarta"),
+    (+8.0, "Beijing, Perth, Singapore, Hong Kong"),
+    (+9.0, "Tokyo, Seoul, Osaka, Sapporo, Yakutsk"),
+    (+9.5, "Adelaide, Darwin"),
+    (+10.0, "Eastern Australia, Guam, Vladivostok"),
+    (+11.0, "Magadan, Solomon Islands, New Caledonia"),
+    (+12.0, "Auckland, Wellington, Fiji, Kamchatka"),
+]
 
 
 # Utilities.
@@ -30,7 +63,7 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
-app.debug = True
+app.debug = False
 
 # Connection to SQLite database.
 @app.before_request
@@ -61,12 +94,28 @@ def levelname(level):
     else:
         return 'debug'
 
+@app.template_filter('tzrep')
+def tzrep(tzoffset):
+    """Given a timezone offset, return a short string depicting the
+    offset from UTC.
+    """
+    if tzoffset == 0.0:
+        return "UTC"
+
+    offset_hours = int(tzoffset)
+    offset_mins = abs(tzoffset - offset_hours) * 60
+    offset_str = '%i:%02i' % (offset_hours, offset_mins)
+    if tzoffset > 0.0:
+        offset_str = "+" + offset_str
+    return "UTC " + offset_str
+
 # Expose constants to templates.
 app.jinja_env.globals.update({
     'min_level': MIN_LEVEL,
     'max_level': MAX_LEVEL,
     'max_msg_length': MAX_MSG_LENGTH,
     'max_messages': MAX_MESSAGES,
+    "time_zones": TIME_ZONES,
 })
 
 @app.errorhandler(404)
