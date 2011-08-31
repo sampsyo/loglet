@@ -160,7 +160,7 @@ def _id_for_log(longid):
 def _messages_for_log(longid):
     logid = _id_for_log(longid)
     c = g.db.execute("SELECT message, time, level FROM messages "
-                     "WHERE logid = ? ORDER BY time DESC",
+                     "WHERE logid = ? ORDER BY time DESC, id DESC",
                      (logid,))
     messages = []
     with closing(c):
@@ -219,7 +219,7 @@ def log(longid):
                          (logid, message, int(time.time()), level))
             # Drop old messages.
             g.db.execute("DELETE FROM messages WHERE id IN (SELECT id FROM "
-                         "messages WHERE logid = ? ORDER BY time DESC "
+                         "messages WHERE logid = ? ORDER BY time DESC, id DESC "
                          "LIMIT -1 OFFSET ?)",
                          (logid, MAX_MESSAGES))
         
