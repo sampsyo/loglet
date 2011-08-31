@@ -37,13 +37,14 @@ else:
     ASYNC_FUNCTIONS['multiprocessing'] = multiprocessing_apply
 
 try:
-    import gevent
+    import gevent.pool
 except ImportError:
     pass
 else:
+    gevent_pool = gevent.pool.Pool(size=15)
     def gevent_apply(func, args=(), kwargs={}):
         """Apply a function in another green thread."""
-        gevent.spawn(func, *args, **kwargs)
+        gevent_pool.spawn(func, *args, **kwargs)
     ASYNC_FUNCTIONS['gevent'] = gevent_apply
 
 
