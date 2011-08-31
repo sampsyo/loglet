@@ -63,7 +63,7 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
-app.debug = True
+app.debug = False
 
 # Connection to SQLite database.
 @app.before_request
