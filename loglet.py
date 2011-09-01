@@ -110,6 +110,13 @@ def tzrep(tzoffset):
         offset_str = "+" + offset_str
     return "UTC " + offset_str
 
+@app.template_filter('stringid')
+def stringid(msgid):
+    """Given an message ID integer, returns a string version to be used
+    as an HTML anchor.
+    """
+    return 'msg%i' % msgid
+
 # Expose constants to templates.
 app.jinja_env.globals.update({
     'min_level': MIN_LEVEL,
@@ -161,7 +168,7 @@ def _id_for_log(longid):
 
 def _messages_for_log(longid):
     logid = _id_for_log(longid)
-    c = g.db.execute("SELECT message, time, level FROM messages "
+    c = g.db.execute("SELECT message, time, level, id FROM messages "
                      "WHERE logid = ? ORDER BY time DESC, id DESC",
                      (logid,))
     messages = []
@@ -170,7 +177,8 @@ def _messages_for_log(longid):
             messages.append({
                 'message': row[0],
                 'time': row[1],
-                'level': row[2]
+                'level': row[2],
+                'id': row[3]
             })
     return messages
 
@@ -263,10 +271,11 @@ def logfeed(longid):
                     url=logurl)
     for message in _messages_for_log(longid):
         pubtime = datetime.datetime.utcfromtimestamp(message['time'])
+        entryurl = '%s#%s' % (logurl, stringid(message['id']))
         feed.add('%i: %s' % (message['level'], message['message'][:128]),
                  '<pre>%s</pre>' % message['message'],
                  content_type='html',
-                 url=logurl,
+                 url=entryurl,
                  published=pubtime,
                  updated=pubtime,
                  author='Loglet')

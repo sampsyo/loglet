@@ -59,7 +59,7 @@
                     <td>Message</td>
                 </tr></thead>
                 {% for message in messages -%}
-                <tr>
+                <tr id="{{ message.id | stringid }}">
                     <td class="time">
                         {{ message.time | timeformat(tzoffset) }}
                     </td>
