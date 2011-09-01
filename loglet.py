@@ -18,6 +18,7 @@ MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
+REFRESH_DELAY = 60 # seconds
 TIME_ZONES = [
     (-12.0, "Eniwetok, Kwajalein"),
     (-11.0, "Midway Island, Samoa"),
@@ -116,6 +117,7 @@ app.jinja_env.globals.update({
     'max_msg_length': MAX_MSG_LENGTH,
     'max_messages': MAX_MESSAGES,
     "time_zones": TIME_ZONES,
+    "refresh_delay": REFRESH_DELAY,
 })
 
 @app.errorhandler(404)

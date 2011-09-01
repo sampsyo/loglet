@@ -6,12 +6,45 @@
           type="application/atom+xml"
           href="{{ url_for('logfeed', longid=longid) }}">
     <script type="text/javascript">
+        var refreshDelaySecs = {{ refresh_delay }};
+        var refreshEnabled = false;
         window.onload = function() {
             var tzsel = document.getElementById('tzoffset');
-            console.log(tzsel);
             tzsel.onchange = function(e) {
                 tzsel.parentNode.submit();
             };
+
+            // Respond to checkbox clicks.
+            var autorf = document.getElementById('autorefresh');
+            autorf.onchange = function(e) {
+                refreshEnabled = (autorf.value == "on");
+            };
+            // Check box based on URL.
+            if (window.location.search.indexOf('refresh') != -1) {
+                autorf.checked = true;
+                refreshEnabled = true;
+            }
+
+            function doRefresh() {
+                if (refreshEnabled) {
+                    var url = window.location.origin +
+                              window.location.pathname;
+
+                    // Make sure refresh box is checked after refresh.
+                    var query = window.location.search;
+                    if (query.indexOf('refresh') == -1) {
+                        if (query) {
+                            query += '&';
+                        }
+                        query += 'refresh=1';
+                    }
+                    url += query;
+                    
+                    window.location.replace(url);
+                }
+                window.setTimeout(doRefresh, refreshDelaySecs * 1000);
+            }
+            window.setTimeout(doRefresh, refreshDelaySecs * 1000);
         }
     </script>
 {% endblock %}
@@ -69,6 +102,13 @@
                     </option>
                 {%- endfor %}
                 </select>
+            </form>
+            <h5>Auto-Refresh</h4>
+            <form>
+                <input type="checkbox" id="autorefresh" name="autorefresh">
+                <label for="autorefresh" class="after">
+                    Reload every {{ refresh_delay }} seconds.
+                </label>
             </form>
         </div>
     </div>
