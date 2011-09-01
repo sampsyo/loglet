@@ -6,7 +6,7 @@
         <small>Like a log file&mdash;but cloudier</small>
     </h1>
     <div class="row">
-        <div class="span10 columns">
+        <div class="span10 columns main intro">
             <p>
                 Loglet is a tiny tool for keeping tabs on long-running
                 processes. Send log messages to Loglet using a simple
@@ -55,8 +55,8 @@ log.error('something horrible has happened')</pre>
                 URL.
             </p>
         </div>
-        <div class="span5 offset1 columns">
-            <h4>Open Source</h4>
+        <div class="span5 offset1 columns sidebar">
+            <h5>Open Source</h5>
             <p>
                 Loglet is 
                 <a href="https://github.com/sampsyo/loglet">on GitHub</a>.
@@ -69,19 +69,23 @@ log.error('something horrible has happened')</pre>
                 Hosted by <a href="http://dreamhost.com/">Dreamhost</a>.
                 {%- endif %}
             </p>
-            <h4>Coming Soon</h4>
+            <h5>Mobile-Optimized</h5>
+            <p>
+                Try viewing a log in your phone&rsquo;s browser.
+            </p>
+            <h5>Coming Soon</h5>
             <p>
                 I&rsquo;d like to add notification via Twitter DMs. Check back
                 soon.
             </p>
-            <h4>Limits</h4>
+            <h5>Limits</h5>
             <p>
                 Log messages are limited to {{ max_msg_length }} characters
                 each. Levels can range from {{ min_level }} to {{ max_level }}.
                 Each log can have up to {{ max_messages }} messages; old
                 messages will be dropped when this limit is exceeded.
             </p>
-            <h4>Author</h4>
+            <h5>Author</h5>
             <p>
                 Loglet is by
                 <a href="http://www.cs.washington.edu/homes/asampson/">Adrian

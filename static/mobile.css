@@ -1,0 +1,57 @@
+.container {
+    width: 320px !important;
+}
+.main {
+    width: 100% !important;
+    overflow: hidden;
+}
+.intro {
+    padding: 0 7px;
+}
+.sidebar, .detail {
+    display: none;
+}
+pre {
+    overflow: hidden;
+}
+
+h1 {
+    margin: 0 0 0 10px;
+    font-size: 1.2em;
+}
+h1 small {
+    font-size: 1em;
+}
+
+thead {
+    display: none;
+}
+table, tr, td {
+    /* Don't format as a table. */
+    display: block;
+}
+td {
+    border: none !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+tr {
+    border-bottom: 1px solid #ddd;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+td.time {
+    float: left;
+}
+td.level {
+    float: left;
+    width: 2em;
+    text-align: center;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+td.message {
+    clear: both;
+    font-size: 13px;
+    padding-top: 4px !important;
+}

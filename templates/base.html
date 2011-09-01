@@ -3,10 +3,14 @@
     <head>
         {% block head -%}
         <title>{% block title %}Loglet{% endblock %}</title>
-        <link rel="stylesheet"
+        <link rel="stylesheet" type="text/css"
               href="{{ url_for('static', filename='bootstrap.css') }}">
-        <link rel="stylesheet"
+        <link rel="stylesheet" type="text/css"
               href="{{ url_for('static', filename='loglet.css') }}">
+        <link rel="stylesheet" type="text/css"
+              media="screen and (max-device-width: 480px)"
+              href="{{ url_for('static', filename='mobile.css') }}">
+        <meta name="viewport" content="width=320,user-scalable=false">
         {%- endblock %}
     </head>
     <body>

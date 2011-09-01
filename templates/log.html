@@ -51,7 +51,7 @@
 {% block content %}
     <h1>A Loglet Log</h1>
     <div class="row">
-        <div class="span12 columns">
+        <div class="span12 columns main">
             <table class="common-table">
                 <thead><tr>
                     <td>Time</td>
@@ -75,14 +75,16 @@
                 No log messages yet.
             </p>
             {%- endif %}
-            <p>
+            <p class="detail">
                 You can add to this log by <code>POST</code>ing to this URL
                 with a <code>message</code> parameter and an optional
                 <code>level</code> parameter.
             </p>
-            <p><code>curl -d message=hello {{ request.base_url }}</code></p>
+            <p class="detail">
+                <code>curl -d message=hello {{ request.base_url }}</code>
+            </p>
         </div>
-        <div class="span4 columns">
+        <div class="span4 columns sidebar">
             <p>
                 View as
                 <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
