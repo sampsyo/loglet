@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Loglet: {{ longid }}{% endblock %}
+{% block title %}Loglet: {{ title }}{% endblock %}
 {% block head %}
     {{ super() }}
     <link rel="alternate"
@@ -45,11 +45,21 @@
                 window.setTimeout(doRefresh, refreshDelaySecs * 1000);
             }
             window.setTimeout(doRefresh, refreshDelaySecs * 1000);
+
+            // Automatically select log title.
+            var titlebox = document.getElementById('titlebox');
+            var didTitleSelect = false;
+            titlebox.onclick = function(e) {
+                if (!didTitleSelect) {
+                    this.select();
+                    didTitleSelect = true;
+                }
+            };
         }
     </script>
 {% endblock %}
 {% block content %}
-    <h1>A Loglet Log</h1>
+    <h1>{{ title }}</h1>
     <div class="row">
         <div class="span12 columns main">
             <table class="common-table">
@@ -111,6 +121,12 @@
                 <label for="autorefresh" class="after">
                     Reload every {{ refresh_delay }} seconds.
                 </label>
+            </form>
+            <h5>Log Title</h5>
+            <form action="{{ url_for('logmeta', longid=longid) }}"
+                method="POST">
+                <input type="text" name="title" id="titlebox"
+                    value="{{ title }}">
             </form>
         </div>
     </div>

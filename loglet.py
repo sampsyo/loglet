@@ -18,6 +18,7 @@ MAX_MSG_LENGTH = 4096
 LEVEL_WARN = 30
 LEVEL_ERROR = 40
 MAX_MESSAGES = 512
+MAX_TITLE_LENGTH = 128
 REFRESH_DELAY = 60 # seconds
 TIME_ZONES = [
     (-12.0, "Eniwetok, Kwajalein"),
@@ -158,16 +159,22 @@ def init_db():
 
 # Query helpers.
 
-def _id_for_log(longid):
-    c = g.db.execute("SELECT id FROM logs WHERE longid = ?", (longid,))
+def _get_log(longid):
+    """Returns the integer ID and title of a log given its long string
+    ID.
+    """
+    c = g.db.execute("SELECT id, name FROM logs WHERE longid = ?", (longid,))
     with closing(c):
         row = c.fetchone()
         if not row:
             flask.abort(404)
-        return row[0]
+        return row[0], row[1]
 
-def _messages_for_log(longid):
-    logid = _id_for_log(longid)
+def _log_contents(longid):
+    """Given a log's long ID, return a list log messages from it and
+    the log's title.
+    """
+    logid, title = _get_log(longid)
     c = g.db.execute("SELECT message, time, level, id FROM messages "
                      "WHERE logid = ? ORDER BY time DESC, id DESC",
                      (logid,))
@@ -180,7 +187,7 @@ def _messages_for_log(longid):
                 'level': row[2],
                 'id': row[3]
             })
-    return messages
+    return messages, title
 
 
 # Views.
@@ -197,7 +204,7 @@ def newlog():
     with g.db:
         g.db.execute("INSERT INTO logs (longid, name, twitternames) "
                     "VALUES (?, ?, ?)",
-                    (longid, 'new log', ''))
+                    (longid, 'A Loglet Log', ''))
     app.logger.debug('created: %s'% longid)
     return flask.redirect('/' + longid)
 
@@ -221,7 +228,7 @@ def log(longid):
         elif level > MAX_LEVEL:
             level = MAX_LEVEL
 
-        logid = _id_for_log(longid)
+        logid, _ = _get_log(longid)
         with g.db:
             # Add new message.
             g.db.execute("INSERT INTO messages (logid, message, time, level) "
@@ -242,8 +249,10 @@ def log(longid):
         except (KeyError, ValueError):
             tzoffset = 0.0
 
+        messages, title = _log_contents(longid)
         return flask.render_template('log.html',
-                                     messages=_messages_for_log(longid),
+                                     messages=messages,
+                                     title=title,
                                      longid=longid,
                                      tzoffset=tzoffset)
 
@@ -251,7 +260,8 @@ def log(longid):
 def logtxt(longid):
     """Plain-text log representation."""
     outlines = []
-    for message in _messages_for_log(longid):
+    messages, _ = _log_contents(longid)
+    for message in messages:
         outlines.append('%i %i %s' %
                         (message['time'], message['level'], message['message']))
     text = "\n".join(outlines)
@@ -260,16 +270,20 @@ def logtxt(longid):
 @app.route("/<longid>/json")
 def logjson(longid):
     """JSON log representation."""
-    return flask.jsonify(log=longid, messages=_messages_for_log(longid))
+    messages, title = _log_contents(longid)
+    return flask.jsonify(log=longid,
+                         messages=messages,
+                         title=title)
 
 @app.route("/<longid>/feed")
 def logfeed(longid):
     """Atom feed for a log."""
     logurl = flask.url_for('log', longid=longid, _external=True)
-    feed = AtomFeed('Loglet Log %s' % longid,
+    messages, title = _log_contents(longid)
+    feed = AtomFeed('Loglet: %s' % title,
                     feed_url=request.url,
                     url=logurl)
-    for message in _messages_for_log(longid):
+    for message in messages:
         pubtime = datetime.datetime.utcfromtimestamp(message['time'])
         entryurl = '%s#%s' % (logurl, stringid(message['id']))
         feed.add('%i: %s' % (message['level'], message['message'][:128]),
@@ -281,6 +295,16 @@ def logfeed(longid):
                  author='Loglet')
     return feed.get_response()
 
+@app.route("/<longid>/meta", methods=["POST"])
+def logmeta(longid):
+    """Change metadata for a log."""
+    if 'title' in request.form:
+        title = request.form['title'][:MAX_TITLE_LENGTH]
+        logid, _ = _get_log(longid)
+        app.logger.debug("log %s title changed to %s" % (longid, repr(title)))
+        with g.db:
+            g.db.execute("UPDATE logs SET name=? WHERE id=?", (title, logid))
+    return flask.redirect('/' + longid)
 
 # Debug server.
 
