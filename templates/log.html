@@ -35,6 +35,8 @@
                     if (query.indexOf('refresh') == -1) {
                         if (query) {
                             query += '&';
+                        } else {
+                            query = '?';
                         }
                         query += 'refresh=1';
                     }
