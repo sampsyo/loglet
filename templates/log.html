@@ -124,6 +124,21 @@
                     Reload every {{ refresh_delay }} seconds.
                 </label>
             </form>
+            <h5>Notifications</h5>
+            <p>
+                Enter your <a href="http://notifo.com/">Notifo</a> username
+                to send messages to your phone or desktop.
+            </p>
+            <form action="{{ url_for('logmeta', longid=longid) }}"
+                method="POST">
+                <input type="text" name="notifoname" id="notifobox"
+                    value="{{ notifoname }}">
+            </form>
+            <p>
+                Notifications are sent for messages with level
+                {{ config.NOTIFICATION_THRESHOLD }}
+                or greater.
+            </p>
             <h5>Log Title</h5>
             <form action="{{ url_for('logmeta', longid=longid) }}"
                 method="POST">
