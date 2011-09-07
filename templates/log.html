@@ -6,7 +6,7 @@
           type="application/atom+xml"
           href="{{ url_for('logfeed', longid=longid) }}">
     <script type="text/javascript">
-        var refreshDelaySecs = {{ refresh_delay }};
+        var refreshDelaySecs = {{ config.REFRESH_DELAY }};
         var refreshEnabled = false;
         window.onload = function() {
             var tzsel = document.getElementById('tzoffset');
@@ -109,7 +109,7 @@
             <h5>Time Zone</h5>
             <form action="" method="GET">
                 <select name="tzoffset" id="tzoffset">
-                {% for offset, name in time_zones -%}
+                {% for offset, name in config.TIME_ZONES -%}
                     <option value="{{ offset }}"
                     {%- if tzoffset == offset %}selected{% endif %}>
                         {{ offset | tzrep }} {{ name }}
@@ -121,7 +121,7 @@
             <form>
                 <input type="checkbox" id="autorefresh" name="autorefresh">
                 <label for="autorefresh" class="after">
-                    Reload every {{ refresh_delay }} seconds.
+                    Reload every {{ config.REFRESH_DELAY }} seconds.
                 </label>
             </form>
             <h5>Notifications</h5>

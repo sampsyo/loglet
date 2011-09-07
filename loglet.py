@@ -77,7 +77,7 @@ app.config.from_envvar('LOGLET_CONFIG', True)
 # Connection to SQLite database.
 @app.before_request
 def before_request():
-    g.db = sqlite3.connect(DB_NAME)
+    g.db = sqlite3.connect(app.config['DB_NAME'])
 @app.teardown_request
 def teardown_request(req):
     g.db.close()
@@ -96,9 +96,9 @@ def levelname(level):
     """Returns a short string summarizing and integer level. Used for
     CSS classes to style elements according to log severity level.
     """
-    if level >= LEVEL_ERROR:
+    if level >= app.config['LEVEL_ERROR']:
         return 'error'
-    elif level >= LEVEL_WARN:
+    elif level >= app.config['LEVEL_WARN']:
         return 'warning'
     else:
         return 'debug'
@@ -125,16 +125,6 @@ def stringid(msgid):
     """
     return 'msg%i' % msgid
 
-# Expose constants to templates.
-app.jinja_env.globals.update({
-    'min_level': MIN_LEVEL,
-    'max_level': MAX_LEVEL,
-    'max_msg_length': MAX_MSG_LENGTH,
-    'max_messages': MAX_MESSAGES,
-    "time_zones": TIME_ZONES,
-    "refresh_delay": REFRESH_DELAY,
-})
-
 @app.errorhandler(404)
 def notfound(error):
     return flask.render_template('notfound.html'), 404
@@ -144,7 +134,7 @@ def servererror(error):
 
 def init_db():
     """Initialize the database schema if needed."""
-    with closing(sqlite3.connect(DB_NAME)) as db:
+    with closing(sqlite3.connect(app.config['DB_NAME'])) as db:
         db.executescript("""
             CREATE TABLE IF NOT EXISTS logs (
                 id INTEGER PRIMARY KEY,
@@ -222,20 +212,18 @@ def log(longid):
     """View or add to a log."""
     if request.method == 'POST':
         # Add to log.
-        message = request.form['message']
+        message = request.form['message'][:app.config['MAX_MSG_LENGTH']]
 
         try:
             level = request.form['level']
         except KeyError:
-            level = MIN_LEVEL
+            level = app.config['MIN_LEVEL']
         try:
             level = int(level)
         except ValueError:
-            level = MIN_LEVEL
-        if level < MIN_LEVEL:
-            level = MIN_LEVEL
-        elif level > MAX_LEVEL:
-            level = MAX_LEVEL
+            level = app.config['MIN_LEVEL']
+        level = max(level, app.config['MIN_LEVEL'])
+        level = min(level, app.config['MAX_LEVEL'])
 
         logid, loginfo = _get_log(longid)
         with g.db:
@@ -247,7 +235,7 @@ def log(longid):
             g.db.execute("DELETE FROM messages WHERE id IN (SELECT id FROM "
                          "messages WHERE logid = ? ORDER BY time DESC, id DESC "
                          "LIMIT -1 OFFSET ?)",
-                         (logid, MAX_MESSAGES))
+                         (logid, app.config['MAX_MESSAGES']))
 
         # Send notifications.
         if level >= app.config['NOTIFICATION_THRESHOLD']:
@@ -329,14 +317,15 @@ def logmeta(longid):
     """Change metadata for a log."""
 
     if 'title' in request.form:
-        title = request.form['title'][:MAX_TITLE_LENGTH].strip()
+        title = request.form['title'][:app.config['MAX_TITLE_LENGTH']].strip()
         logid, _ = _get_log(longid)
         app.logger.debug("log %s title changed to %s" % (longid, repr(title)))
         with g.db:
             g.db.execute("UPDATE logs SET name=? WHERE id=?", (title, logid))
 
     if 'notifoname' in request.form:
-        username = request.form['notifoname'][:MAX_NOTIFO_LENGTH].strip()
+        username = request.form['notifoname'][:app.config['MAX_NOTIFO_LENGTH']]
+        username = username.strip()
 
         # Try confirming with Notifo.
         if username:

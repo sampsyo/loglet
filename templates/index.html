@@ -83,9 +83,13 @@ log.error('something horrible has happened')</pre>
             </p>
             <h5>Limits</h5>
             <p>
-                Log messages are limited to {{ max_msg_length }} characters
-                each. Levels can range from {{ min_level }} to {{ max_level }}.
-                Each log can have up to {{ max_messages }} messages; old
+                Log messages are limited to
+                {{ config.MAX_MSG_LENGTH }} characters
+                each. Levels can range from
+                {{ config.MIN_LEVEL }} to
+                {{ config.MAX_LEVEL }}.
+                Each log can have up to
+                {{ config.MAX_MESSAGES }} messages; old
                 messages will be dropped when this limit is exceeded.
             </p>
             <h5>Author</h5>
