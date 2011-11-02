@@ -18,13 +18,13 @@ shift $((OPTIND-1))
 
 logid=$1
 shift
-if [ "$logid" == "" ]; then
+if [ "$logid" = "" ]; then
     echo "no log ID specified" >&2
     usage
 fi
 
 message=$@
-if [ "$message" == "" ]; then
+if [ "$message" = "" ]; then
     echo "no message specified" >&2
     usage
 fi
