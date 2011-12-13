@@ -54,14 +54,20 @@ class LogletHandler(logging.Handler):
     """A logging handler that sends messages to a Loglet log. Pass the
     Loglet ID as the first parameter to the constructor.
     """
-    def __init__(self, logid, level=logging.NOTSET, mode='sync'):
-        """Create a new Loglet handler. An ID string for the log must
-        be provided. The mode parameter specifies whether log requests
+
+    def __init__(self, logid=None, level=logging.NOTSET, mode='sync'):
+        """Create a new Loglet handler. An ID string for the log can
+        be provided.  If not provided, an empty loglet will be created.
+        The mode parameter specifies whether log requests
         should be performed asynchronously. Possible values are
         "sync" (blocking request), "threading", "multiprocessing", or
         "gevent".
         """
         logging.Handler.__init__(self, level)
+        if not logid:
+            u = urllib.urlopen(BASE_URL + 'new', data='')
+            url = u.geturl()
+            logid = url[url.rfind('/') + 1:]
         self.logid = logid
         try:
             self.apply = ASYNC_FUNCTIONS[mode]
@@ -73,4 +79,9 @@ class LogletHandler(logging.Handler):
     def emit(self, record):
         args = self.logid, record.getMessage(), record.levelno
         self.apply(log, args)
+
+    @property
+    def url(self):
+        """The url of loglet."""
+        return BASE_URL + self.logid
 
