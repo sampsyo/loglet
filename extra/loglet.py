@@ -3,6 +3,10 @@ import logging
 import urllib
 import threading
 
+__all__ = ['LogletHandler']
+__version__ = '1.0'
+
+
 BASE_URL = 'http://loglet.radbox.org/'
 ASYNC_FUNCTIONS = {'sync': apply}
 
