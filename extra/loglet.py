@@ -56,19 +56,23 @@ class LogletHandler(logging.Handler):
     """
 
     def __init__(self, logid=None, level=logging.NOTSET, mode='sync'):
-        """Create a new Loglet handler. An ID string for the log can
-        be provided.  If not provided, an empty loglet will be created.
-        The mode parameter specifies whether log requests
-        should be performed asynchronously. Possible values are
-        "sync" (blocking request), "threading", "multiprocessing", or
-        "gevent".
+        """Create a new Loglet handler. An ID string for the log can be
+        provided.  If not provided, an empty loglet will be created.
+        The mode parameter specifies whether log requests should be
+        performed asynchronously. Possible values are "sync" (blocking
+        request), "threading", "multiprocessing", or "gevent".
         """
         logging.Handler.__init__(self, level)
+
+        # If no log ID is specified, create a new log using a POST
+        # request to the Web service and get its ID.
         if not logid:
             u = urllib.urlopen(BASE_URL + 'new', data='')
             url = u.geturl()
             logid = url[url.rfind('/') + 1:]
+
         self.logid = logid
+
         try:
             self.apply = ASYNC_FUNCTIONS[mode]
         except KeyError:
@@ -84,4 +88,3 @@ class LogletHandler(logging.Handler):
     def url(self):
         """The url of loglet."""
         return BASE_URL + self.logid
-
