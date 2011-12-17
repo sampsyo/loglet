@@ -47,23 +47,22 @@ There are 4 types of sync/async modes:
 
 .. _Loglet: http://loglet.radbox.org/
 .. _gevent: http://gevent.org/
-
 """
+
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 from loglet import __version__
 
-
-setup(name='Loglet',
+setup(name='loglet',
       version=__version__,
       py_modules=['loglet'],
       scripts=['loglet.sh'],
       author='Adrian Sampson',
-      author_email='adrian' '@' 'radbox.org',
+      author_email='adrian@radbox.org',
       url='http://loglet.radbox.org/',
-      description='The Python client library for Loglet',
+      description='client library Loglet, the Web-based logging system',
       long_description=__doc__,
       classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -76,4 +75,3 @@ setup(name='Loglet',
         'Programming Language :: Python :: 2 :: Only',
         'Topic :: System :: Logging',
       ])
-
