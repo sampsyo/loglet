@@ -1,0 +1,4 @@
+www:
+    type: python
+    environment:
+        LOGLET_CONFIG: /home/dotcloud/current/settings.dotcloud.cfg

@@ -8,6 +8,8 @@ import time
 import datetime
 from werkzeug.contrib.atom import AtomFeed
 import notifo
+import os
+import json
 
 
 # Default configuration. These can be overridden using the LOGLET_CONFIG
@@ -23,7 +25,7 @@ MAX_MESSAGES = 512
 MAX_TITLE_LENGTH = 256
 MAX_NOTIFO_LENGTH = 128
 NOTIFICATION_THRESHOLD = 50
-REFRESH_DELAY = 60 # seconds
+REFRESH_DELAY = 60  # Seconds.
 TIME_ZONES = [
     (-12.0, "Eniwetok, Kwajalein"),
     (-11.0, "Midway Island, Samoa"),
@@ -59,6 +61,8 @@ TIME_ZONES = [
 ]
 NOTIFO_USER = ''
 NOTIFO_SECRET = ''
+ENV_FILE_PATH = '/home/dotcloud/environment.json'
+CONFIG_ENVVAR = 'LOGLET_CONFIG'
 
 
 # Utilities.
@@ -71,8 +75,18 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
 # Application setup.
 
 app = flask.Flask(__name__)
-app.config.from_object(__name__) # Use above constants as default.
-app.config.from_envvar('LOGLET_CONFIG', True)
+app.config.from_object(__name__)  # Use above constants as default.
+app.config.from_envvar(CONFIG_ENVVAR, True)
+if os.path.exists(ENV_FILE_PATH):
+    # "Environment variable" from a JSON file (e.g., dotcloud).
+    with open(ENV_FILE_PATH) as env_file:
+        try:
+            file_env = json.load(env_file)
+        except ValueError:
+            pass
+        else:
+            if CONFIG_ENVVAR in file_env:
+                app.config.from_pyfile(file_env[CONFIG_ENVVAR])
 
 # Connection to SQLite database.
 @app.before_request
@@ -80,7 +94,8 @@ def before_request():
     g.db = sqlite3.connect(app.config['DB_NAME'])
 @app.teardown_request
 def teardown_request(req):
-    g.db.close()
+    if hasattr(g, 'db'):
+        g.db.close()
 
 @app.template_filter('timeformat')
 def timeformat(ts, tzoffset=0, fmt='%Y-%m-%d %H:%M:%S'):
@@ -132,8 +147,13 @@ def notfound(error):
 def servererror(error):
     return flask.render_template('error.html'), 500
 
+@app.before_first_request
 def init_db():
     """Initialize the database schema if needed."""
+    db_dir = os.path.dirname(app.config['DB_NAME'])
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir)
+
     with closing(sqlite3.connect(app.config['DB_NAME'])) as db:
         db.executescript("""
             CREATE TABLE IF NOT EXISTS logs (
@@ -351,5 +371,4 @@ def logmeta(longid):
 # Debug server.
 
 if __name__ == '__main__':
-    init_db()
     app.run()
