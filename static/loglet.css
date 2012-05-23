@@ -12,6 +12,9 @@
     font-weight: bold;
     color: #999;
 }
+.logtable .thead a {
+    color: inherit;
+}
 
 .level {
     text-align: center;

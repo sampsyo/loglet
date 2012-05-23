@@ -10,6 +10,7 @@ from werkzeug.contrib.atom import AtomFeed
 import notifo
 import os
 import json
+import urllib
 
 
 # Default configuration. These can be overridden using the LOGLET_CONFIG
@@ -189,14 +190,16 @@ def _get_log(longid):
             flask.abort(404)
     return row[0], {'title': row[1], 'notifoname': row[2] or ''}
 
-def _log_contents(longid):
+def _log_contents(longid, reverse=False):
     """Given a log's long ID, return a list log messages from it and
     the log's title.
     """
     logid, loginfo = _get_log(longid)
-    c = g.db.execute("SELECT message, time, level, id FROM messages "
-                     "WHERE logid = ? ORDER BY time DESC, id DESC",
-                     (logid,))
+    statement = (
+        "SELECT message, time, level, id FROM messages "
+        "WHERE logid = ? ORDER BY time {}, id DESC"
+    ).format('' if reverse else 'DESC')
+    c = g.db.execute(statement, (logid,))
     messages = []
     with closing(c):
         for row in c:
@@ -285,19 +288,34 @@ def log(longid):
         except (KeyError, ValueError):
             tzoffset = 0.0
 
-        messages, loginfo = _log_contents(longid)
+        # Concoct the URL for the reverse-order listing.
+        reversed_args = dict(request.args)
+        if not reversed_args.get('reverse'):
+            reversed_args['reverse'] = '1'
+        elif 'reverse' in reversed_args:
+            del reversed_args['reverse']
+        reversed_args_str = urllib.urlencode(reversed_args)
+        if reversed_args_str:
+            reversed_url = '{}?{}'.format(request.base_url, reversed_args_str)
+        else:
+            reversed_url = request.base_url
+
+        messages, loginfo = _log_contents(longid,
+                                          request.args.get('reverse', False))
         return flask.render_template('log.html',
                                      messages=messages,
                                      title=loginfo['title'],
                                      notifoname=loginfo['notifoname'],
                                      longid=longid,
-                                     tzoffset=tzoffset)
+                                     tzoffset=tzoffset,
+                                     reversed_url=reversed_url)
 
 @app.route("/<longid>/txt")
 def logtxt(longid):
     """Plain-text log representation."""
     outlines = []
-    messages, _ = _log_contents(longid)
+    messages, _ = _log_contents(longid,
+                                request.args.get('reverse', False))
     for message in messages:
         outlines.append('%i %i %s' %
                         (message['time'], message['level'], message['message']))
@@ -307,7 +325,8 @@ def logtxt(longid):
 @app.route("/<longid>/json")
 def logjson(longid):
     """JSON log representation."""
-    messages, loginfo = _log_contents(longid)
+    messages, loginfo = _log_contents(longid,
+                                      request.args.get('reverse', False))
     return flask.jsonify(log=longid,
                          messages=messages,
                          title=loginfo['title'])
@@ -316,7 +335,8 @@ def logjson(longid):
 def logfeed(longid):
     """Atom feed for a log."""
     logurl = flask.url_for('log', longid=longid, _external=True)
-    messages, loginfo = _log_contents(longid)
+    messages, loginfo = _log_contents(longid,
+                                      request.args.get('reverse', False))
     feed = AtomFeed('Loglet: %s' % loginfo['title'],
                     feed_url=request.url,
                     url=logurl)
