@@ -65,20 +65,20 @@
     <div class="row">
         <div class="span9 main">
             <div class="logtable">
-                <div class="row-fluid thead">
+                <div class="row thead">
                     <div class="span2">Time</div>
                     <div class="span1">Level</div>
-                    <div class="span9">Message</div>
+                    <div class="span6">Message</div>
                 </div>
                 {% for message in messages -%}
-                <div class="row-fluid trow" id="{{ message.id | stringid }}">
+                <div class="row trow" id="{{ message.id | stringid }}">
                     <div class="span2 time">
                         {{ message.time | timeformat(tzoffset) }}
                     </div>
                     <div class="span1 level {{ message.level | levelname }}">
                         {{ message.level | default('&nbsp;' | safe, True) }}
                     </div>
-                    <div class="span9 message">{{ message.message }}</div>
+                    <div class="span6 message">{{ message.message }}</div>
                 </div>
                 {%- endfor %}
             </div>
