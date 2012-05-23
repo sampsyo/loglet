@@ -197,7 +197,7 @@ def _log_contents(longid, reverse=False):
     logid, loginfo = _get_log(longid)
     statement = (
         "SELECT message, time, level, id FROM messages "
-        "WHERE logid = ? ORDER BY time {}, id DESC"
+        "WHERE logid = ? ORDER BY time {0}, id DESC"
     ).format('' if reverse else 'DESC')
     c = g.db.execute(statement, (logid,))
     messages = []
@@ -296,7 +296,8 @@ def log(longid):
             del reversed_args['reverse']
         reversed_args_str = urllib.urlencode(reversed_args)
         if reversed_args_str:
-            reversed_url = '{}?{}'.format(request.base_url, reversed_args_str)
+            reversed_url = '{0}?{1}'.format(request.base_url,
+                                            reversed_args_str)
         else:
             reversed_url = request.base_url
 
