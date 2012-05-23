@@ -1,10 +1,21 @@
-td.time {
-    width: 10em;
+.logtable {
+    margin-bottom: 1em;
 }
-td.level {
-    width: 4em;
+.logtable .thead, .logtable .trow {
+    border-bottom: 1px solid #ccc;
+    padding: 0.8em 0;
+}
+.logtable .thead div, .logtable .trow div {
+    min-height: 0px;
+}
+.logtable .thead {
+    font-weight: bold;
+    color: #999;
 }
 
+.level {
+    text-align: center;
+}
 .level.error {
     background: #D11010;
     color: white;
@@ -34,5 +45,6 @@ select {
 }
 
 label.after {
-    float: none;
+    display: inline-block;
+    margin-left: 0.5em;
 }

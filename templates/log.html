@@ -62,26 +62,26 @@
 {% endblock %}
 {% block content %}
     <h1>{{ title }}</h1>
-    <div class="row">
-        <div class="span12 columns main">
-            <table class="common-table">
-                <thead><tr>
-                    <td>Time</td>
-                    <td>Level</td>
-                    <td>Message</td>
-                </tr></thead>
+    <div class="row-fluid">
+        <div class="span8 main">
+            <div class="logtable">
+                <div class="row-fluid thead">
+                    <div class="span2">Time</div>
+                    <div class="span1">Level</div>
+                    <div class="span9">Message</div>
+                </div>
                 {% for message in messages -%}
-                <tr id="{{ message.id | stringid }}">
-                    <td class="time">
+                <div class="row-fluid trow" id="{{ message.id | stringid }}">
+                    <div class="span2 time">
                         {{ message.time | timeformat(tzoffset) }}
-                    </td>
-                    <td class="level {{ message.level | levelname }}">
-                        {{ message.level | default('', True) }}
-                    </td>
-                    <td class="message">{{ message.message }}</td>
-                </tr>
+                    </div>
+                    <div class="span1 level {{ message.level | levelname }}">
+                        {{ message.level | default('&nbsp;' | safe, True) }}
+                    </div>
+                    <div class="span9 message">{{ message.message }}</div>
+                </div>
                 {%- endfor %}
-            </table>
+            </div>
             {% if not messages -%}
             <p class="emptylog">
                 No log messages yet.
