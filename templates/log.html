@@ -62,8 +62,8 @@
 {% endblock %}
 {% block content %}
     <h1>{{ title }}</h1>
-    <div class="row-fluid">
-        <div class="span8 main">
+    <div class="row">
+        <div class="span9 main">
             <div class="logtable">
                 <div class="row-fluid thead">
                     <div class="span2">Time</div>
@@ -96,7 +96,7 @@
                 <code>curl -d message=hello {{ request.base_url }}</code>
             </p>
         </div>
-        <div class="span4 columns sidebar">
+        <div class="span3 columns sidebar">
             <p>
                 View as
                 <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
