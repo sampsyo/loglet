@@ -52,3 +52,10 @@ label.after {
     display: inline-block;
     margin-left: 0.5em;
 }
+
+/* For small screens. */
+@media (max-width: 767px) {
+    .level {
+        text-align: left;
+    }
+}
