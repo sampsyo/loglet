@@ -103,12 +103,11 @@
         <div class="span3 columns sidebar">
             <p>
                 View as
-                <a href="{{ url_for('logtxt', longid=longid) }}">plain text</a>
+                <a href="{{ text_url }}">plain text</a>
                 or
-                <a href="{{ url_for('logjson', longid=longid) }}">JSON</a>
+                <a href="{{ json_url }}">JSON</a>
                 or subscribe to
-                <a href="{{ url_for('logfeed', longid=longid) }}">an
-                    Atom feed</a>.
+                <a href="{{ feed_url }}">an Atom feed</a>.
             </p>
             <h5>Time Zone</h5>
             <form action="" method="GET">

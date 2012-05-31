@@ -72,6 +72,18 @@ def random_string(length=16, chars=(string.ascii_letters + string.digits)):
     """Generate a string of random characters."""
     return ''.join(random.choice(chars) for i in range(length))
 
+def url_with_args(base_url, args):
+    """Construct a URL with a query part. `args` is a dictionary
+    containing the arguments for the query part. If no arguments are
+    present, the URL is returned unmodified.
+    """
+    args = dict((str(k), str(v)) for (k, v) in args.iteritems())
+    args_str = urllib.urlencode(dict(args))
+    if args_str:
+        return '{0}?{1}'.format(base_url, args_str)
+    else:
+        return base_url
+
 
 # Application setup.
 
@@ -294,22 +306,29 @@ def log(longid):
             reversed_args['reverse'] = '1'
         elif 'reverse' in reversed_args:
             del reversed_args['reverse']
-        reversed_args_str = urllib.urlencode(reversed_args)
-        if reversed_args_str:
-            reversed_url = '{0}?{1}'.format(request.base_url,
-                                            reversed_args_str)
-        else:
-            reversed_url = request.base_url
+        reversed_url = url_with_args(request.base_url, reversed_args)
+
+        # ... and the alternate-format URLs.
+        text_url = url_with_args(flask.url_for('logtxt', longid=longid),
+                                 request.args)
+        json_url = url_with_args(flask.url_for('logjson', longid=longid),
+                                 request.args)
+        feed_url = flask.url_for('logfeed', longid=longid)
 
         messages, loginfo = _log_contents(longid,
                                           request.args.get('reverse', False))
-        return flask.render_template('log.html',
-                                     messages=messages,
-                                     title=loginfo['title'],
-                                     notifoname=loginfo['notifoname'],
-                                     longid=longid,
-                                     tzoffset=tzoffset,
-                                     reversed_url=reversed_url)
+        return flask.render_template(
+            'log.html',
+            messages=messages,
+            title=loginfo['title'],
+            notifoname=loginfo['notifoname'],
+            longid=longid,
+            tzoffset=tzoffset,
+            reversed_url=reversed_url,
+            text_url=text_url,
+            json_url=json_url,
+            feed_url=feed_url,
+        )
 
 @app.route("/<longid>/txt")
 def logtxt(longid):
